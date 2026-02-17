@@ -1,0 +1,42 @@
+# ============================================================
+# Network Monitoring & Automation System — Configuration
+# ============================================================
+
+monitoring:
+  check_interval: 30          # seconds between check cycles
+  timeout: 5                  # TCP connection timeout (seconds)
+  max_latency_history: 100    # ring-buffer size per host
+
+alerts:
+  latency_warning_ms: 500     # ms — triggers WARNING
+  latency_critical_ms: 2000   # ms — triggers CRITICAL
+  consecutive_failures: 3     # failures before CRITICAL alert
+  retry_attempts: 2           # retries before marking DOWN
+  backoff_base: 1.0           # exponential backoff base (seconds)
+  backoff_max: 30.0           # max backoff cap
+
+slack:
+  enabled: false
+  webhook_url: ""             # set via env SLACK_WEBHOOK_URL
+
+hosts:
+  - name: "Google DNS"
+    host: "8.8.8.8"
+    port: 53
+
+  - name: "Cloudflare DNS"
+    host: "1.1.1.1"
+    port: 53
+
+  - name: "Google HTTP"
+    host: "google.com"
+    port: 80
+
+  - name: "GitHub"
+    host: "github.com"
+    port: 443
+
+logging:
+  level: "INFO"               # DEBUG | INFO | WARNING | ERROR
+  format: "json"              # json | text
+  directory: "logs"
