@@ -4,32 +4,39 @@ services:
   # -----------------------------------------------------------------------------------------------
   - type: web
     name: netmonitor-backend
-    env: python
+    runtime: python
     region: ohio
     plan: free
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: PORT
-        value: 10000
+      - key: CONFIG_PATH
+        value: config.yaml
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+    healthCheckPath: /metrics
 
   # -----------------------------------------------------------------------------------------------
   # FRONTEND SERVICE (Static Site)
   # -----------------------------------------------------------------------------------------------
-  # Using 'type: web' with 'env: static' is the most robust way to define static sites
-  # if standard 'staticSites' block fails validation.
   - type: web
     name: netmonitor-frontend
-    env: static
+    runtime: static
     region: ohio
     plan: free
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: VITE_API_URL
         fromService:
           type: web
           name: netmonitor-backend
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
