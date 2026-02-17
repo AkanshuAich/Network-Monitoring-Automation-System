@@ -25,7 +25,6 @@ services:
   - type: web
     name: netmonitor-frontend
     runtime: static
-    region: ohio
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
