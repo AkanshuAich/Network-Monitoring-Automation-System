@@ -15,16 +15,41 @@ services:
       - key: PORT
         value: 10000
 
-  # -----------------------------------------------------------------------------------------------
-  # FRONTEND SERVICE (Static Site)
-  # -----------------------------------------------------------------------------------------------
-  - type: static
-    name: netmonitor-frontend
-    env: static
+# -----------------------------------------------------------------------------------------------
+# FRONTEND SERVICE (Static Site)
+# -----------------------------------------------------------------------------------------------
+# Static sites must be defined in their own section, not under 'services'
+# NOTE: Render blueprints use 'staticSites' as a top-level key.
+# However, if using the dashboard creation wizard with a repo, it might expect a different format.
+# But for render.yaml (Infrastructure as Code), 'staticSites' is the standard key.
+# 
+# Wait, actually standard Render Blueprints spec is 'services' (for web, pserv, worker, cron) 
+# AND 'staticSites' (for static sites).
+# 
+# Let's fix the structure.
+
+services:
+  - type: web
+    name: netmonitor-backend
+    env: python
     region: ohio
     plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
+
+# Fix: staticSites is a top-level key, completely separate from services
+# Also, property names might differ slightly (e.g. 'publishPath' vs 'staticPublishPath')
+# Spec: https://render.com/docs/blueprint-spec#staticsites
+staticSites:
+  - name: netmonitor-frontend
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    publishPath: frontend/dist
+    region: ohio
     envVars:
       - key: VITE_API_URL
         fromService:
