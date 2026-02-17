@@ -15,14 +15,18 @@ services:
       - key: PORT
         value: 10000
 
-# -----------------------------------------------------------------------------------------------
-# FRONTEND SERVICE (Static Site)
-# -----------------------------------------------------------------------------------------------
-staticSites:
-  - name: netmonitor-frontend
-    buildCommand: cd frontend && npm install && npm run build
-    publishPath: frontend/dist
+  # -----------------------------------------------------------------------------------------------
+  # FRONTEND SERVICE (Static Site)
+  # -----------------------------------------------------------------------------------------------
+  # Using 'type: web' with 'env: static' is the most robust way to define static sites
+  # if standard 'staticSites' block fails validation.
+  - type: web
+    name: netmonitor-frontend
+    env: static
     region: ohio
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
         fromService:
