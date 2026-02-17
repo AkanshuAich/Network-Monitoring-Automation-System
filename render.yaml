@@ -21,8 +21,9 @@ services:
   # -----------------------------------------------------------------------------------------------
   # FRONTEND SERVICE (Static Site)
   # -----------------------------------------------------------------------------------------------
-  - type: static
+  - type: web
     name: netmonitor-frontend
+    runtime: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     rootDir: frontend
